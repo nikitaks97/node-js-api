@@ -1,5 +1,6 @@
 name: build and publish docker image
 on: 
+ workflow_dispatch:
  release:
   types: [published] #release:Specifies that the workflow is triggered by GitHub Release events.#Limits the workflow to only run when a release is published.
 jobs:
