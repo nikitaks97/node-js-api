@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "Waiting for the app to be ready..."
           for i in {1..10}; do
-            curl --silent --fail http://localhost:3001/api/users && break
+            curl --silent --fail http://app:3001/api/users && break
             echo "Waiting..."
             sleep 3
           done
@@ -45,10 +45,10 @@ jobs:
       # Send a POST request to create a new user
       - name: Post a user
         run: >
-          curl -X POST http://localhost:3001/api/users 
+          curl -X POST http://app:3001/api/users 
           -H 'Content-Type: application/json' 
           -d '{"username": "hello","address": "dwded"}'
 
       # Send a GET request to retrieve all users
       - name: Get users
-        run: curl http://localhost:3001/api/users
+        run: curl http://app:3001/api/users
