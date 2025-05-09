@@ -12,16 +12,16 @@ jobs:
       # The Node.js app container
       app:
         image: alialaa17/simple-node-api       # Docker image for the Node.js API
-        ports:
-          - 3001:3000                          # Maps port 3000 in the container to 3001 on the host
+      #  ports:
+      #    - 3001:3000                          # Maps port 3000 in the container to 3001 on the host
         env:
           MONGO_HOSTNAME: mongo               # Set env var expected by the app to connect to MongoDB
 
       # MongoDB container
       mongo:
         image: mongo                          # Official MongoDB image
-        ports:
-          - 27017:27017                       # Expose default MongoDB port
+       # ports:
+       #   - 27017:27017                       # Expose default MongoDB port
 
     steps:
       - name: Install curl
@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "Waiting for the app to be ready..."
           for i in {1..10}; do
-            curl --silent --fail http://app:3001/api/users && break
+            curl --silent --fail http://app:3000/api/users && break
             echo "Waiting..."
             sleep 3
           done
@@ -45,10 +45,15 @@ jobs:
       # Send a POST request to create a new user
       - name: Post a user
         run: >
-          curl -X POST http://app:3001/api/users 
+          curl -X POST http://app:3000/api/users  # here we use 3000 port as it is the port on which the app is exposed inside the container
           -H 'Content-Type: application/json' 
           -d '{"username": "hello","address": "dwded"}'
 
       # Send a GET request to retrieve all users
       - name: Get users
-        run: curl http://app:3001/api/users
+        run: curl http://app:3000/api/users
+
+        #The app hostname only works between service containers and a job container (if defined with container:).Without that, the runner is outside the Docker network and can't resolve app — henc
+# github actions automatically will make all the containers share the same docker network so all the ports are going to 
+# be exposed between these containers so we donot need to map any port as we are communicating from a container to a container not
+# from a host to a container. And we will communicate with the service container using its service name and not localhost.
