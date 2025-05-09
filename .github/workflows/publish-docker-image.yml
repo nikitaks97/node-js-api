@@ -31,6 +31,7 @@ jobs:
       file: ./Dockerfile
       push: true
       tags: ${{ steps.metadata.outputs.tags }}
+            alialaa17/simple-node-api:latest
       labels: ${{ steps.metadata.outputs.labels }}
       
       
