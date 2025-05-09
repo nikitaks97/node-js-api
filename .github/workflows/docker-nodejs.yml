@@ -1,34 +1,50 @@
 name: Nodejs docker - test api
 
+# Trigger the workflow on push or manual dispatch
 on: [push, workflow_dispatch]
 
 jobs:
   docker-job:
     runs-on: ubuntu-latest
+
+    # Define dependent containers for the job
     services:
+      # The Node.js app container
       app:
-        image: alialaa17/simple-node-api
+        image: alialaa17/simple-node-api       # Docker image for the Node.js API
         ports:
-          - 3001:3000
-        env: 
-          MONGO_HOSTNAME: mongo
+          - 3001:3000                          # Maps port 3000 in the container to 3001 on the host
+        env:
+          MONGO_HOSTNAME: mongo               # Set env var expected by the app to connect to MongoDB
+
+      # MongoDB container
       mongo:
-        image: mongo
+        image: mongo                          # Official MongoDB image
         ports:
-          - 27017:27017
+          - 27017:27017                       # Expose default MongoDB port
 
     steps:
+      # Print service metadata (hostnames, ports, etc.) for debugging
       - name: Dump services context
         run: echo '${{ toJson(job.services) }}'
 
+      # Give the app some time to start (optional but recommended)
+      - name: Wait for app to be ready
+        run: |
+          echo "Waiting for the app to be ready..."
+          for i in {1..10}; do
+            curl --silent --fail http://localhost:3001/api/users && break
+            echo "Waiting..."
+            sleep 3
+          done
+
+      # Send a POST request to create a new user
       - name: Post a user
         run: >
           curl -X POST http://localhost:3001/api/users 
           -H 'Content-Type: application/json' 
           -d '{"username": "hello","address": "dwded"}'
 
+      # Send a GET request to retrieve all users
       - name: Get users
         run: curl http://localhost:3001/api/users
-
-   
-   
